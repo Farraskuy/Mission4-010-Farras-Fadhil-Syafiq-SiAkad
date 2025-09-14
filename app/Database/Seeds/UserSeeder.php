@@ -10,10 +10,9 @@ class UserSeeder extends Seeder
     {
         $data = [
             [
-                'student_id' => null,
                 'username' => 'admin',
                 'email'    => 'admin@polban.ac.id',
-                'password' => password_hash('admin123', PASSWORD_DEFAULT),
+                'password' => password_hash('admin', PASSWORD_DEFAULT),
                 'full_name' => 'Nama Lengkap Admin',
                 'role' => 'admin'
             ],

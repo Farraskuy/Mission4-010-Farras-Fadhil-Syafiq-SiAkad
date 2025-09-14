@@ -48,14 +48,33 @@
                         <span class="navbar-toggler-icon"></span>
                     </button>
                     <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
-                       
-                        <form class="d-flex" role="search">
-                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
-                            <button class="btn btn-outline-success" type="submit">Search</button>
-                        </form>
+
+                        <div class="d-flex">
+                            <button class="btn btn-outline-danger" data-bs-target="#modal-logout" data-bs-toggle="modal" type="submit">Logout</button>
+                        </div>
                     </div>
                 </div>
             </nav>
+
+            <div class="modal fade" id="modal-logout" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header border-0">
+                            <h1 class="modal-title fs-5" id="exampleModalToggleLabel">konfirmasi Logout</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Apakah anda yakin akan logout?
+                        </div>
+                        <form method="post" action="<?= base_url('logout') ?>" class="modal-footer border-0">
+                            <?= csrf_field() ?>
+
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button class="btn btn-outline-danger">Ya, Logout</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
 
             <?= $this->renderSection('content') ?>
         </main>

@@ -13,12 +13,13 @@ use CodeIgniter\Router\RouteCollection;
 $routes->group('', ['filter' => 'guest'], function () use ($routes) {
     $routes->get("/login", "AuthController::login");
     $routes->post("/login", "AuthController::Authlogin");
-    $routes->post("/login", "AuthController::logout");
     // $routes->get("/register", "AuthController::register");
     // $routes->post("/register", "AuthController::AuthRegister");
 });
 
 $routes->group('', ['filter' => 'auth'], function () use ($routes) {
+    $routes->post("/logout", "AuthController::logout");
+    
     $routes->get('/', 'DashboardController::index');
 
 
