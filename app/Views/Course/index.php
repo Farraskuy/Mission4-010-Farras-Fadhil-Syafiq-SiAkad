@@ -41,34 +41,104 @@ List Course
             <td><?= esc($course['credits']) ?></td>
             <td>
                 <div class="d-flex w-100 gap-2 flex-wrap justify-content-end">
-                    <a href="<?= base_url('course/detail/' . $course['id']) ?>" class="btn flex-grow-1 flex-lg-grow-0 btn-info">Detail</a>
-                    <a href="<?= base_url('course/update/' . $course['id']) ?>" class="btn flex-grow-1 flex-lg-grow-0 btn-warning">Update</a>
-                    <button data-bs-target="#modal-delete-<?= $course['id'] ?>" data-bs-toggle="modal" class="btn flex-grow-1 flex-lg-grow-0 btn-danger">Delete</button>
+                    <?php if (session()->has('users') && session()->get('users')['role'] == 'admin'): ?>
+                        <a href="<?= base_url('course/detail/' . $course['id']) ?>" class="btn flex-grow-1 flex-lg-grow-0 btn-info">Detail</a>
+                        <a href="<?= base_url('course/update/' . $course['id']) ?>" class="btn flex-grow-1 flex-lg-grow-0 btn-warning">Update</a>
+                        <button data-bs-target="#modal-delete-<?= $course['id'] ?>" data-bs-toggle="modal" class="btn flex-grow-1 flex-lg-grow-0 btn-danger">Delete</button>
+                        <div class="modal fade" id="modal-delete-<?= $course['id'] ?>" aria-hidden="true" tabindex="-1">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header border-0">
+                                        <h1 class="modal-title fs-5">Delete Confirmation</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Are you sure you want to delete course <strong>"<?= esc($course['course_name']) ?>"</strong>?
+                                    </div>
+                                    <form method="post" action="<?= base_url('course/delete/' . $course['id']) ?>">
+                                        <?= csrf_field() ?>
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <div class="modal-footer border-0">
+                                            <button type="button" class="btn  btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn btn-outline-danger">Yes, Delete</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endif ?>
+
+                    <?php if (session()->has('users') && session()->get('users')['role'] == 'student'): ?>
+                        <?php if (!in_array($course['id'], $takenCourses)): ?>
+                            <!-- Tombol EnCourse -->
+                            <button data-bs-target="#modal-encourse-<?= $course['id'] ?>" data-bs-toggle="modal"
+                                class="btn flex-grow-1 flex-lg-grow-0 btn-success">
+                                Enroll
+                            </button>
+
+                            <!-- Modal EnCourse -->
+                            <div class="modal fade" id="modal-encourse-<?= $course['id'] ?>" aria-hidden="true" tabindex="-1">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header border-0">
+                                            <h1 class="modal-title fs-5">Enroll Confirmation</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Are you sure you want to enroll in course
+                                            <strong>"<?= esc($course['course_name']) ?>"</strong>?
+                                        </div>
+                                        <form method="post" action="<?= base_url('course/enroll/' . $course['id']) ?>">
+                                            <?= csrf_field() ?>
+                                            <div class="modal-footer border-0">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-outline-success">Yes, Enroll</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                        <?php else: ?>
+                            <!-- Tombol Un-EnCourse -->
+                            <button data-bs-target="#modal-unencourse-<?= $course['id'] ?>" data-bs-toggle="modal"
+                                class="btn flex-grow-1 flex-lg-grow-0 btn-danger">
+                                Un-Enroll
+                            </button>
+
+                            <!-- Modal Un-EnCourse -->
+                            <div class="modal fade" id="modal-unencourse-<?= $course['id'] ?>" aria-hidden="true" tabindex="-1">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header border-0">
+                                            <h1 class="modal-title fs-5">Un-Enroll Confirmation</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Are you sure you want to un-enroll from course
+                                            <strong>"<?= esc($course['course_name']) ?>"</strong>?
+                                        </div>
+                                        <form method="post" action="<?= base_url('course/unenroll/' . $course['id']) ?>">
+                                            <?= csrf_field() ?>
+                                            <div class="modal-footer border-0">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <button type="submit" class="btn btn-outline-danger">Yes, Un-Enroll</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    <?php endif ?>
+
+
                 </div>
             </td>
         </tr>
 
-        <div class="modal fade" id="modal-delete-<?= $course['id'] ?>" aria-hidden="true" tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header border-0">
-                        <h1 class="modal-title fs-5">Delete Confirmation</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        Are you sure you want to delete course <strong>"<?= esc($course['course_name']) ?>"</strong>?
-                    </div>
-                    <form method="post" action="<?= base_url('course/delete/' . $course['id']) ?>">
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="_method" value="DELETE">
-                        <div class="modal-footer border-0">
-                            <button type="button" class="btn  btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-outline-danger">Yes, Delete</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+        <?php if (session()->has('users') && session()->get('users')['role'] == 'admin'): ?>
+
+        <?php endif ?>
 
 
     <?php endforeach; ?>

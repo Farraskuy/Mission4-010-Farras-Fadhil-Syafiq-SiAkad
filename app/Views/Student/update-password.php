@@ -50,6 +50,8 @@ Update Password Student
     <?= csrf_field() ?>
     <!-- <?= d($validation) ?> -->
 
+    <input type="hidden" name="_method" value="PUT">
+
     <div class="mb-3">
         <label for="password" class="form-label">Password</label>
         <input type="password"

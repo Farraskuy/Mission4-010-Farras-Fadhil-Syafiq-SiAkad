@@ -74,6 +74,10 @@ class StudentController extends BaseController
             'role' => 'student'
         ]);
 
+        $userUpdate = new Users();
+        $userUpdate = $userUpdate->update($user, [
+            'password' => password_hash($data['password'], PASSWORD_DEFAULT),
+        ]);
 
         $students = new Students();
         $students->insert([

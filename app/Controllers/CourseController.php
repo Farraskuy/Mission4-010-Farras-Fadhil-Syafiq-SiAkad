@@ -4,20 +4,46 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\Courses;
+use App\Models\Students;
+use App\Models\Takes;
 use App\Models\Users;
 use CodeIgniter\HTTP\ResponseInterface;
+use CodeIgniter\I18n\Time;
 
 class CourseController extends BaseController
 {
     public function index()
     {
         $search = $this->request->getGet("keyword");
-        $courses = new Courses();
 
-        $courses = $courses->like('course_name', $search ?? '')->findAll();
+        $userId = session()->get('users')['id'];
 
-        return view("Course/index", ["courses" => $courses]);
+        $coursesModel = new Courses();
+        $studentModel = new Students();
+        $takeModel    = new Takes();
+
+        $student = $studentModel->where('user_id', $userId)->first();
+
+        $takenCourses = [];
+        if ($student) {
+            $takes = $takeModel
+                ->select('course_id')
+                ->where('student_id', $student['nim'])
+                ->findAll();
+
+            $takenCourses = array_column($takes, 'course_id');
+        }
+
+        $courses = $coursesModel
+            ->like('course_name', $search ?? '')
+            ->findAll();
+
+        return view("Course/index", [
+            "courses"      => $courses,
+            "takenCourses" => $takenCourses
+        ]);
     }
+
 
 
     public function detail($id)
@@ -108,6 +134,44 @@ class CourseController extends BaseController
         ]);
 
         return redirect()->to('/course')->with('success', 'Course updated!');
+    }
+
+    public function enroll($courseId)
+    {
+        $userId = session()->get('users')['id'];
+        $student = new Students();
+        $student = $student->where('user_id', $userId)->first();
+
+        if (!$student) {
+            return redirect()->back()->with('error', 'Student not found');
+        }
+
+        $takes = new Takes();
+        $takes->insert([
+            'course_id' => $courseId,
+            'student_id' => $student['nim'],
+            'enroll_date' => Time::now()
+        ]);
+
+        return redirect()->back()->with('success', 'Enrolled successfully');
+    }
+
+    public function unenroll($courseId)
+    {
+        $userId = session()->get('users')['id'];
+        $student = new Students();
+        $student = $student->where('user_id', $userId)->first();
+
+        if (!$student) {
+            return redirect()->back()->with('error', 'Student not found');
+        }
+
+        $takes = new Takes();
+        $takes->where('course_id', $courseId)
+            ->where('student_id', $student['nim'])
+            ->delete();
+
+        return redirect()->back()->with('success', 'Un-Enrolled successfully');
     }
 
     public function destroy($id)
