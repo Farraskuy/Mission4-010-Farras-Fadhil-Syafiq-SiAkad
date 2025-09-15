@@ -1,72 +1,54 @@
-# Starter Aplikasi CodeIgniter 4
+# SiAkad - Sistem Akademik
 
-## Deskripsi
+Sebuah sistem informasi akademik sederhana yang dibangun menggunakan CodeIgniter 4.
 
-Ini adalah starter project untuk aplikasi web menggunakan [CodeIgniter 4](https://codeigniter.com/), sebuah framework PHP yang ringan, cepat, fleksibel, dan aman. Cocok untuk membangun aplikasi CRUD, website, maupun API.
+## 🚀 Langkah Menjalankan Aplikasi
 
-## Instalasi
+Untuk menjalankan proyek ini di lingkungan lokal Anda, ikuti langkah-langkah berikut:
 
-1. **Clone repository ini**  
-   Jalankan perintah berikut di terminal:
-   ```sh
-   git clone <url-repo-anda>
-   cd CI4+Crud
-   ```
+1.  **Clone Repositori**
+    Pastikan Anda sudah mengunduh semua file proyek ke dalam direktori lokal Anda.
 
-2. **Install dependency dengan Composer**  
-   Pastikan Composer sudah terinstall, lalu jalankan:
-   ```sh
-   composer install
-   ```
+2.  **Instalasi Dependensi**
+    Buka terminal atau command prompt, arahkan ke direktori root proyek Anda, dan jalankan perintah berikut untuk menginstal semua dependensi yang diperlukan:
+    ```bash
+    composer install
+    ```
 
-3. **Konfigurasi environment**  
-   Salin file `env` menjadi `.env`:
-   ```sh
-   cp env .env
-   ```
-   Edit file `.env` sesuai kebutuhan, terutama bagian `baseURL` dan pengaturan database.
+3.  **Konfigurasi Database**
+    - Salin file `env` menjadi `.env`.
+    - Buka file `.env` dan sesuaikan pengaturan database berikut dengan konfigurasi lokal Anda:
+      ```
+      database.default.hostname = localhost
+      database.default.database = nama_database_anda
+      database.default.username = user_database_anda
+      database.default.password = password_database_anda
+      database.default.DBDriver = MySQLi
+      ```
 
-4. **Konfigurasi web server**  
-   Pastikan web server (Apache/Nginx) diarahkan ke folder `public/` sebagai root.
+4.  **Migrasi dan Seeding Database**
+    Jalankan perintah berikut untuk membuat semua tabel yang diperlukan dan mengisi data awal (termasuk akun pengguna untuk pengujian):
+    ```bash
+    php spark migrate
+    php spark db:seed UserSeeder
+    php spark db:seed StudentSeeder
+    ```
 
-## Cara Menggunakan
+5.  **Jalankan Aplikasi**
+    Terakhir, jalankan server pengembangan bawaan CodeIgniter dengan perintah:
+    ```bash
+    php spark serve
+    ```
+    Aplikasi sekarang akan dapat diakses melalui `http://localhost:8080`.
 
-- Jalankan aplikasi di localhost dengan web server (XAMPP/Laragon/dll) yang mengarah ke folder `public/`.
-- Untuk development, bisa juga menggunakan built-in server:
-  ```sh
-  php spark serve
-  ```
-  Akses aplikasi di [http://localhost:8080](http://localhost:8080).
+## Credentials untuk Pengujian
 
-## Fitur yang Tersedia
+Anda dapat menggunakan akun berikut untuk masuk ke dalam sistem dan melakukan pengujian:
 
-- **CRUD Student**  
-  - Tambah, edit, hapus, dan lihat data student.
-  - Pencarian data student.
-  - Validasi input (NIM, nama, jenis kelamin).
-- **Struktur MVC**  
-  - Model, View, Controller terpisah sesuai standar CodeIgniter.
-- **Keamanan**  
-  - Proteksi CSRF pada form.
-  - Validasi data.
-- **Konfigurasi Mudah**  
-  - Pengaturan database, session, dan lain-lain melalui file konfigurasi di `app/Config/`.
-- **Testing**  
-  - Dukungan unit test dengan PHPUnit (lihat folder `tests/`).
+### Akun Admin
+-   **Username**: `admin`
+-   **Password**: `admin`
 
-## Struktur Folder Utama
-
-- `app/` : Kode aplikasi (Controller, Model, View, Config)
-- `public/` : Web root (index.php, asset publik)
-- `writable/` : Folder untuk cache, logs, upload, dll
-- `tests/` : Unit test
-- `vendor/` : Dependency dari Composer
-
-## Dokumentasi
-
-- [Panduan CodeIgniter 4](https://codeigniter.com/user_guide/)
-- [Forum Diskusi](https://forum.codeigniter.com/)
-
----
-
-**Lisensi:** MIT License  
+### Akun Mahasiswa (Student)
+-   **Username**: `farras`
+-   **Password**: `farras`
