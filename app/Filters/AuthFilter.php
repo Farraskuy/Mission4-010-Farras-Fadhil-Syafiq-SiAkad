@@ -25,8 +25,20 @@ class AuthFilter implements FilterInterface
      */
     public function before(RequestInterface $request, $arguments = null)
     {
-        if (!session()->has('users')) {
+        if (!session()->has('users') && is_array($arguments) && in_array('login', $arguments)) {
             return redirect()->to('login');
+        }
+
+        if (session()->has('users') && is_array($arguments) && in_array('guest', $arguments)) {
+            return redirect()->to('/');
+        }
+
+        if (
+            session()->has('users') && is_array($arguments) &&
+            ((session()->get('users')['role'] != 'admin' && in_array('admin', $arguments)) ||
+                (session()->get('users')['role'] != 'student' && in_array('student', $arguments)))
+        ) {
+            return redirect()->back();
         }
     }
 

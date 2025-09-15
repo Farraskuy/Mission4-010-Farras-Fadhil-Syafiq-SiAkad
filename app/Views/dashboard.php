@@ -6,12 +6,10 @@ Dashboard
 
 <?= $this->section('content') ?>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div class="py-3 px-4">
-        <h2 class="fw-bold">Dashboard</h2>
-        <p class="text-muted">Selamat datang, ...</p>
-    </div>
-</div>
+
+<h2 class="fw-bold">Dashboard</h2>
+<p class="text-muted">Selamat datang, <strong><?= session('users')['username'] ?></strong></p>
+
 
 <?= $this->endSection() ?>
 

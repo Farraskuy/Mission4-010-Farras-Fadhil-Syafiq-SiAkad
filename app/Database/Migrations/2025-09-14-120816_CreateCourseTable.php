@@ -20,6 +20,14 @@ class CreateCoursesTable extends Migration
             ],
             'credits' => [
                 'type' => 'INT',
+            ],
+            'created_at' => [
+                'type' => 'DATETIME',
+                'null' => false,
+            ],
+            'updated_at' => [
+                'type' => 'DATETIME',
+                'null' => false,
             ]
         ]);
 

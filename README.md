@@ -40,9 +40,9 @@ Ini adalah starter project untuk aplikasi web menggunakan [CodeIgniter 4](https:
 
 ## Fitur yang Tersedia
 
-- **CRUD Mahasiswa**  
-  - Tambah, edit, hapus, dan lihat data mahasiswa.
-  - Pencarian data mahasiswa.
+- **CRUD Student**  
+  - Tambah, edit, hapus, dan lihat data student.
+  - Pencarian data student.
   - Validasi input (NIM, nama, jenis kelamin).
 - **Struktur MVC**  
   - Model, View, Controller terpisah sesuai standar CodeIgniter.

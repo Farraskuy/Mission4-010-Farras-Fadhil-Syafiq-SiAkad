@@ -27,6 +27,14 @@ class CreateStudentTable extends Migration
                 'type' => 'INT',
                 'null' => false,
             ],
+            'created_at' => [
+                'type' => 'DATETIME',
+                'null' => false,
+            ],
+            'updated_at' => [
+                'type' => 'DATETIME',
+                'null' => false,
+            ]
         ]);
 
         $this->forge->addPrimaryKey('nim');

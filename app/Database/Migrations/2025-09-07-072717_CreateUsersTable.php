@@ -33,11 +33,15 @@ class CreateUsersTable extends Migration
                 'constraint' => 255,
             ],
             'role' => [
-                'type' => "ENUM('admin','mahasiswa')",
-                'default' => 'mahasiswa',
+                'type' => "ENUM('admin','student')",
+                'default' => 'student',
                 'null' => false
             ],
             'created_at' => [
+                'type' => 'DATETIME',
+                'null' => false,
+            ],
+            'updated_at' => [
                 'type' => 'DATETIME',
                 'null' => false,
             ]

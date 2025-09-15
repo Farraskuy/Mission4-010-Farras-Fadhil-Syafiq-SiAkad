@@ -10,27 +10,37 @@ use CodeIgniter\Router\RouteCollection;
 // $routes->get('/hello-world', 'HelloWorld::index');
 // $routes->get('/html-table', 'HelloWorld::html_table');
 
-$routes->group('', ['filter' => 'guest'], function () use ($routes) {
+$routes->group('', ['filter' => 'auth:guest'], function () use ($routes) {
     $routes->get("/login", "AuthController::login");
     $routes->post("/login", "AuthController::Authlogin");
     // $routes->get("/register", "AuthController::register");
     // $routes->post("/register", "AuthController::AuthRegister");
 });
 
-$routes->group('', ['filter' => 'auth'], function () use ($routes) {
+$routes->group('', ['filter' => 'auth:login'], function () use ($routes) {
     $routes->post("/logout", "AuthController::logout");
-    
+
     $routes->get('/', 'DashboardController::index');
 
+    $routes->group('/student', ['filter' => 'auth:admin'], function () use ($routes) {
+        $routes->get("/", "StudentController::index");
+        $routes->get("tambah", "StudentController::tambah");
+        $routes->post("tambah", "StudentController::store");
+        $routes->get("detail/(:num)", "StudentController::detail/$1");
+        $routes->get("update/password/(:num)", "StudentController::edit_password/$1");
+        $routes->put("update/password/(:num)", "StudentController::update_password/$1");
+        $routes->get("update/(:num)", "StudentController::edit/$1");
+        $routes->put("update/(:num)", "StudentController::update/$1");
+        $routes->delete("delete/(:num)", "StudentController::destroy/$1");
+    });
 
-    $routes->group('/mahasiswa', ['filter' => 'mahasiswa'], function () use ($routes) {
-        $routes->get("/", "Mahasiswa::index");
-        $routes->get("tambah", "Mahasiswa::tambah");
-        $routes->post("tambah", "Mahasiswa::store");
-        $routes->get("detail/(:num)", "Mahasiswa::detail/$1");
-        $routes->get("edit/(:num)", "Mahasiswa::edit/$1");
-        $routes->put("edit/(:num)", "Mahasiswa::update/$1");
-        $routes->get("delete/(:num)", "Mahasiswa::delete/$1");
-        $routes->delete("delete/(:num)", "Mahasiswa::destroy/$1");
+    $routes->group('/course', ['filter' => 'auth:admin'], function () use ($routes) {
+        $routes->get("/", "CourseController::index");
+        $routes->get("tambah", "CourseController::tambah");
+        $routes->post("tambah", "CourseController::store");
+        $routes->get("detail/(:num)", "CourseController::detail/$1");
+        $routes->get("update/(:num)", "CourseController::edit/$1");
+        $routes->put("update/(:num)", "CourseController::update/$1");
+        $routes->delete("delete/(:num)", "CourseController::destroy/$1");
     });
 });
