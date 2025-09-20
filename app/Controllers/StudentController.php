@@ -54,7 +54,7 @@ class StudentController extends BaseController
             'nim' => 'required|is_unique[students.nim]|numeric|min_length[9]|max_length[9]',
             'full_name' => 'required|min_length[3]|max_length[255]',
             'username' => 'required|is_unique[users.username]',
-            'email' => 'required|valid_email',
+            'email' => 'required|valid_email|is_unique[users.email]',
             'password' => 'required|regex_match[/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/]'
         ];
 
@@ -115,16 +115,15 @@ class StudentController extends BaseController
         }
 
         $rules = [
-            'nim' => "required|is_unique[students.nim,id,$id]|numeric|min_length[9]|max_length[9]",
+            'nim' => "required|is_unique[students.nim,nim,$id]|numeric|min_length[9]|max_length[9]",
             'full_name' => 'required|min_length[3]|max_length[255]',
             'username' => "required|is_unique[users.username,id,{$student['user_id']}]",
-            'email' => 'required|valid_email',
-            'password' => 'required|regex_match[/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/]'
+            'email' => "required|valid_email|is_unique[users.email,id,{$student['user_id']}]",
         ];
 
 
         if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('validation', $this->validator);
+            return redirect()->back()->withInput()->with('validation', $this->validator->getErrors());
         }
 
         $data = $this->request->getPost();
@@ -138,14 +137,14 @@ class StudentController extends BaseController
         ]);
 
         $students = new Students();
-        $students->update($student['id'], [
+        $students->update($id, [
             'user_id' => $user,
             'nim' => $data['nim'],
             'tanggal_lahir' => $data['tanggal_lahir'],
             'entry_year' => date_parse($data['entry_year'])['year'],
         ]);
 
-        return redirect()->to('/students')->with('success', 'Data berhasil diupdate!');
+        return redirect()->to('/student')->with('success', 'Data berhasil diupdate!');
     }
 
 
@@ -198,10 +197,15 @@ class StudentController extends BaseController
         $students = new Students();
         $data =  $students->find($id);
 
+
+        
         if (!$data) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Student with ID $id not found");
         }
 
+        $user = new Users();
+        $user->delete($data['id']);
+        
         $students->delete($id);
         return redirect()->to('/student')->with('success', 'Data students berhasil dihapus!');
     }

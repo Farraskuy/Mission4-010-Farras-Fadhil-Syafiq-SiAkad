@@ -26,12 +26,12 @@
 
             <p class="text-muted small text-uppercase ps-3">Menu Utama</p>
             <ul class="nav nav-pills flex-column mb-auto">
+                <li class="nav-item">
+                    <a href="<?= base_url('/') ?>" class="nav-link <?= service('uri')->getSegment(1) == ''  ? 'active' : '' ?>" aria-current="page">
+                        Dashboard
+                    </a>
+                </li>
                 <?php if (session()->has('users') && session()->get('users')['role'] == 'admin'): ?>
-                    <li class="nav-item">
-                        <a href="<?= base_url('/') ?>" class="nav-link <?= service('uri')->getSegment(1) == ''  ? 'active' : '' ?>" aria-current="page">
-                            Dashboard
-                        </a>
-                    </li>
                     <li class="nav-item">
                         <a href="<?= base_url('/student') ?>" class="nav-link <?= service('uri')->getSegment(1) == 'student' ? 'active' : '' ?>" aria-current="page">
                             Student

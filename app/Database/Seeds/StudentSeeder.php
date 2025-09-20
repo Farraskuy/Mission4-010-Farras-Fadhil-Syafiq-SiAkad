@@ -12,12 +12,13 @@ class StudentSeeder extends Seeder
             'username' => 'farras',
             'email'    => 'farras@polban.ac.id',
             'password' => password_hash('farras', PASSWORD_DEFAULT),
-            'full_name' => 'Nama Lengkap Admin',
+            'full_name' => 'Farras Fadhil Syafiq',
             'role' => 'student'
         ];
+
         $this->db->table('users')->insert($user);
 
-        $student = [
+        $student = [ 
             'nim' => '241511010',
             'tanggal_lahir' => '2006-02-15',
             'user_id' => $this->db->insertID(),

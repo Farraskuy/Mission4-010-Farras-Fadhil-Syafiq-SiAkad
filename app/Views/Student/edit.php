@@ -15,9 +15,10 @@ Update Student
     </div>
 </div>
 
-<form action="<?= base_url('student/tambah') ?>" method="post">
+<form action="<?= base_url("student/update/{$student['nim']}") ?>" method="post">
     <?= csrf_field() ?>
-    <!-- <?= d($validation) ?> -->
+
+    <input type="hidden" name="_method" value="PUT">
 
     <div class="mb-3">
         <label for="nim" class="form-label">NIM</label>
@@ -35,7 +36,7 @@ Update Student
         <label for="tanggal_lahir" class="form-label">Tanggal Lahir</label>
         <input type="date"
             class="form-control <?= isset($validation['tanggal_lahir']) ? 'is-invalid' : '' ?>"
-            id="tanggal_lahir" name="tanggal_lahir" value="<?= old('tanggal_lahir', $student['tanggal_lahir']) ?>">
+            id="tanggal_lahir" name="tanggal_lahir" value="<?= old('tanggal_lahir', date('Y-m-d', strtotime($student['tanggal_lahir']))) ?>">
         <?php if (isset($validation['tanggal_lahir'])): ?>
             <div class="invalid-feedback">
                 <?= $validation['tanggal_lahir'] ?>
@@ -47,7 +48,7 @@ Update Student
         <label for="entry_year" class="form-label">Entry Year</label>
         <input type="date"
             class="form-control <?= isset($validation['entry_year']) ? 'is-invalid' : '' ?>"
-            id="entry_year" name="entry_year" value="<?= old('entry_year', $student['entry_year']) ?>">
+            id="entry_year" name="entry_year" value="<?= old('entry_year', date('Y-m-d', strtotime($student['entry_year']))) ?>">
         <?php if (isset($validation['entry_year'])): ?>
             <div class="invalid-feedback">
                 <?= $validation['entry_year'] ?>

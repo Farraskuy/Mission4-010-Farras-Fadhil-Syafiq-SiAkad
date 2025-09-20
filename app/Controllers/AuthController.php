@@ -33,7 +33,7 @@ class AuthController extends BaseController
             ->join('students', 'students.user_id = users.id', 'left')
             ->first();
 
-        if (!$users && !password_verify($password, $users['password'] ?? '')) {
+        if (!$users || !password_verify($password, $users['password'])) {
             return redirect()->back()->withInput()->with('error', 'Username/Email atau password salah');
         }
 
