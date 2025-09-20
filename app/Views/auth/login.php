@@ -19,11 +19,14 @@ Masuk ke akun
 
     <h1 class="fs-4 fw-medium mb-4">Masuk</h1>
 
-    <?php if (session()->has('error')): ?>
-        <div class="alert alert-danger "><?= session()->getFlashdata('error') ?></div>
-    <?php endif ?>
 
     <form method="post" class="w-100">
+        <div class="alert alert-danger d-none">
+            <?php if (session()->has('error')): ?>
+                <?= session()->getFlashdata('error') ?>
+            <?php endif ?>
+        </div>
+
         <?= csrf_field() ?>
 
         <div class="form-floating mb-3">
@@ -50,12 +53,10 @@ Masuk ke akun
                 <a href="#" class="text-decoration-none">Lupa password?</a>
             </div> -->
 
-        <button class="btn btn-primary fw-semibold rounded-pill w-100 py-2">
+        <button type="submit" class="btn btn-primary fw-semibold rounded-pill w-100 py-2">
             Masuk
         </button>
-
     </form>
 </div>
-
 
 <?= $this->endSection('content') ?>

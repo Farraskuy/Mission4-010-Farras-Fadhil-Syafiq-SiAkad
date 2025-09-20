@@ -1,0 +1,4 @@
+button:disabled {
+    filter: grayscale(1);
+    transition: 0.1s ease;
+}
