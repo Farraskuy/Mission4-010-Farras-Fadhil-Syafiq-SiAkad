@@ -14,35 +14,74 @@ class CourseController extends BaseController
 {
     public function index()
     {
-        $search = $this->request->getGet("keyword");
+        if ($this->request->isAJAX()) {
+            $search = $this->request->getGet("keyword");
 
+            $coursesModel = new Courses();
+
+            if ($search && $search != '') {
+                $courses = $coursesModel
+                    ->like('course_name', $search)
+                    ->findAll();
+            } else {
+                $courses = $coursesModel->findAll();
+            }
+
+            return response()->setJSON([
+                'data' => $courses
+            ]);
+        }
+
+        return view("Course/index");
+    }
+
+    public function student()
+    {
         $userId = session()->get('users')['id'];
 
         $coursesModel = new Courses();
         $studentModel = new Students();
-        $takeModel    = new Takes();
+        $takesModel   = new Takes();
 
+        // Cari student dari user login
         $student = $studentModel->where('user_id', $userId)->first();
 
-        $takenCourses = [];
-        if ($student) {
-            $takes = $takeModel
-                ->select('course_id')
-                ->where('student_id', $student['nim'])
-                ->findAll();
+        // Kalau AJAX: return JSON
+        if ($this->request->isAJAX()) {
+            $takenIds = [];
+            $takenCourses = [];
 
-            $takenCourses = array_column($takes, 'course_id');
+            if ($student) {
+                // Ambil course yang sudah diambil
+                $takes = $takesModel
+                    ->select('courses.*')
+                    ->join('courses', 'courses.id = takes.course_id')
+                    ->where('student_id', $student['nim'])
+                    ->findAll();
+
+                $takenCourses = $takes;
+                $takenIds     = array_column($takes, 'id');
+            }
+
+            // Ambil course yang belum diambil
+            if (!empty($takenIds)) {
+                $availableCourses = $coursesModel
+                    ->whereNotIn('id', $takenIds)
+                    ->findAll();
+            } else {
+                $availableCourses = $coursesModel->findAll();
+            }
+
+            return $this->response->setJSON([
+                'available' => $availableCourses,
+                'taken'     => $takenCourses
+            ]);
         }
 
-        $courses = $coursesModel
-            ->like('course_name', $search ?? '')
-            ->findAll();
-
-        return view("Course/index", [
-            "courses"      => $courses,
-            "takenCourses" => $takenCourses
-        ]);
+        // Kalau bukan AJAX: tampilkan view student enrollment
+        return view('Course/student');
     }
+
 
 
 
@@ -70,25 +109,43 @@ class CourseController extends BaseController
 
     public function store()
     {
-        $rules = [
+        $data = $this->request->isAJAX()
+            ? json_decode($this->request->getBody(), true)
+            : $this->request->getPost();
+
+        $validation = $this->validateData($data, [
             'course_name' => 'required|min_length[3]|max_length[255]',
-            'credits' => 'required|numeric'
-        ];
-
-        if (!$this->validate($rules)) {
-            return redirect()->back()
-                ->withInput()->with('validation', $this->validator->getErrors());
-        }
-
-        $data = $this->request->getPost();
-
-        $user = new Courses();
-        $user = $user->insert([
-            'course_name' => $data['course_name'],
-            'credits' => $data['credits'],
+            'credits'     => 'required|numeric'
         ]);
 
-        return redirect()->to('/course')->with('success', 'Course created.');
+        if (!$validation) {
+            if ($this->request->isAJAX()) {
+                return response()->setJSON([
+                    'success'    => false,
+                    'validation' => $this->validator->getErrors()
+                ]);
+            }
+
+            return redirect()->back()
+                ->withInput()
+                ->with('validation', $this->validator->getErrors());
+        }
+
+        $courseModel = new Courses();
+        $courseModel->insert([
+            'course_name' => $data['course_name'],
+            'credits'     => $data['credits'],
+        ]);
+
+        if ($this->request->isAJAX()) {
+            return response()->setJSON([
+                'success'     => true,
+                'message'     => 'Course created!',
+                'redirect_to' => base_url('course')
+            ]);
+        }
+
+        return redirect()->to('/course')->with('success', 'Course created!');
     }
 
     public function edit($id)
@@ -108,82 +165,141 @@ class CourseController extends BaseController
 
     public function update($id)
     {
-        $course = new Courses();
-        $course = $course->find($id);
+        $courseModel = new Courses();
+        $course      = $courseModel->find($id);
 
         if (!$course) {
-            return redirect()->back()->with('error', 'Course is not fount');
+            if ($this->request->isAJAX()) {
+                return response()->setJSON([
+                    'success' => false,
+                    'error'   => 'Course not found'
+                ]);
+            }
+            return redirect()->back()->with('error', 'Course not found');
         }
 
-        $rules = [
+        $data = $this->request->isAJAX()
+            ? json_decode($this->request->getBody(), true)
+            : $this->request->getPost();
+
+        $validation = $this->validateData($data, [
             'course_name' => 'required|min_length[3]|max_length[255]',
-            'credits' => 'required|numeric'
-        ];
+            'credits'     => 'required|numeric'
+        ]);
 
-
-        if (!$this->validate($rules)) {
+        if (!$validation) {
+            if ($this->request->isAJAX()) {
+                return response()->setJSON([
+                    'success'    => false,
+                    'validation' => $this->validator->getErrors()
+                ]);
+            }
             return redirect()->back()->withInput()->with('validation', $this->validator->getErrors());
         }
 
-        $data = $this->request->getPost();
-
-        $user = new Courses();
-        $user = $user->update($id, [
+        $courseModel->update($id, [
             'course_name' => $data['course_name'],
-            'credits' => $data['credits'],
+            'credits'     => $data['credits'],
         ]);
+
+        if ($this->request->isAJAX()) {
+            return response()->setJSON([
+                'success'     => true,
+                'message'     => 'Course updated!',
+                'redirect_to' => base_url('course')
+            ]);
+        }
 
         return redirect()->to('/course')->with('success', 'Course updated!');
     }
-
-    public function enroll($courseId)
+    
+    public function enroll()
     {
         $userId = session()->get('users')['id'];
-        $student = new Students();
-        $student = $student->where('user_id', $userId)->first();
+        $student = (new Students())->where('user_id', $userId)->first();
 
         if (!$student) {
-            return redirect()->back()->with('error', 'Student not found');
+            return $this->response->setJSON(['success' => false, 'message' => 'Student not found']);
+        }
+
+        // Ambil data JSON atau POST
+        $data = $this->request->getJSON(true) ?? $this->request->getPost();
+        $courseIds = $data['course_ids'] ?? null;
+
+        if (!$courseIds || !is_array($courseIds)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'No courses selected']);
         }
 
         $takes = new Takes();
-        $takes->insert([
-            'course_id' => $courseId,
-            'student_id' => $student['nim'],
-            'enroll_date' => Time::now()
-        ]);
+        foreach ($courseIds as $courseId) {
+            $exists = $takes->where('course_id', $courseId)
+                ->where('student_id', $student['nim'])
+                ->first();
+            if (!$exists) {
+                $takes->insert([
+                    'course_id'   => $courseId,
+                    'student_id'  => $student['nim'],
+                    'enroll_date' => Time::now()
+                ]);
+            }
+        }
 
-        return redirect()->back()->with('success', 'Enrolled successfully');
+        return $this->response->setJSON(['success' => true, 'message' => 'Enrolled successfully']);
     }
 
-    public function unenroll($courseId)
+    public function unenroll()
     {
         $userId = session()->get('users')['id'];
-        $student = new Students();
-        $student = $student->where('user_id', $userId)->first();
+        $student = (new Students())->where('user_id', $userId)->first();
 
         if (!$student) {
-            return redirect()->back()->with('error', 'Student not found');
+            return $this->response->setJSON(['success' => false, 'message' => 'Student not found']);
+        }
+
+        $data = $this->request->getJSON(true) ?? $this->request->getPost();
+        $courseIds = $data['course_ids'] ?? null;
+
+        if (!$courseIds || !is_array($courseIds)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'No courses selected']);
         }
 
         $takes = new Takes();
-        $takes->where('course_id', $courseId)
-            ->where('student_id', $student['nim'])
-            ->delete();
+        foreach ($courseIds as $courseId) {
+            $takes->where('course_id', $courseId)
+                ->where('student_id', $student['nim'])
+                ->delete();
+        }
 
-        return redirect()->back()->with('success', 'Un-Enrolled successfully');
+        return $this->response->setJSON(['success' => true, 'message' => 'Un-Enrolled successfully']);
     }
+
+
 
     public function destroy($id)
     {
-        $courses = new Courses();
-        $data =  $courses->find($id);
+        $courseModel = new Courses();
+        $course      = $courseModel->find($id);
 
-        if (!$data) {
+        if (!$course) {
+            if ($this->request->isAJAX()) {
+                return response()->setJSON([
+                    'success' => false,
+                    'error'   => "Course with ID $id not found"
+                ]);
+            }
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Course with ID $id not found");
         }
 
-        $courses->delete($id);
+        $courseModel->delete($id);
+
+        if ($this->request->isAJAX()) {
+            return response()->setJSON([
+                'success'    => true,
+                'message'    => 'Course deleted!',
+                'closeModal' => true
+            ]);
+        }
+
         return redirect()->to('/course')->with('success', 'Course deleted!');
     }
 }

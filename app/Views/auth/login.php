@@ -20,7 +20,7 @@ Masuk ke akun
     <h1 class="fs-4 fw-medium mb-4">Masuk</h1>
 
 
-    <form method="post" class="w-100">
+    <form method="post" class="w-100 data" alert="true">
         <div class="alert alert-danger d-none">
             <?php if (session()->has('error')): ?>
                 <?= session()->getFlashdata('error') ?>

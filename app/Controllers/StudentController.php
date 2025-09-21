@@ -11,18 +11,25 @@ class StudentController extends BaseController
 {
     public function index()
     {
-        $search = $this->request->getGet("keyword");
-        $students = new Students();
+        if ($this->request->isAJAX()) {
+            $search = $this->request->getGet("keyword");
 
-        $students = $students->join('users', 'users.id = students.user_id');
+            $students = new Students();
 
-        if ($search) {
-            $students = $students->like('username', $search)->orLike('nim',  $search)->findAll();
-        } else {
-            $students = $students->findAll();
+            $students = $students->join('users', 'users.id = students.user_id');
+
+            if ($search && $search != '') {
+                $students = $students->like('username', "%$search%")->orLike('nim',  "%$search%")->findAll();
+            } else {
+                $students = $students->findAll();
+            }
+
+            return response()->setJSON([
+                'data' => $students
+            ]);
         }
 
-        return view("Student/index", ["students" => $students]);
+        return view("Student/index");
     }
 
 
@@ -47,45 +54,54 @@ class StudentController extends BaseController
             'validation' => session()->getFlashdata('validation')
         ]);
     }
-
     public function store()
     {
+        $data = $this->request->isAJAX()
+            ? json_decode($this->request->getBody(), true)
+            : $this->request->getPost();
+
         $rules = [
-            'nim' => 'required|is_unique[students.nim]|numeric|min_length[9]|max_length[9]',
+            'nim'       => 'required|is_unique[students.nim]|numeric|min_length[9]|max_length[9]',
             'full_name' => 'required|min_length[3]|max_length[255]',
-            'username' => 'required|is_unique[users.username]',
-            'email' => 'required|valid_email|is_unique[users.email]',
-            'password' => 'required|regex_match[/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/]'
+            'username'  => 'required|is_unique[users.username]',
+            'email'     => 'required|valid_email|is_unique[users.email]',
+            'password'  => 'required|regex_match[/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/]'
         ];
 
-        if (!$this->validate($rules)) {
-            return redirect()->back()
-                ->withInput()->with('validation', $this->validator->getErrors());
+        if (!$this->validateData($data, $rules)) {
+            if ($this->request->isAJAX()) {
+                return response()->setJSON([
+                    'success'    => false,
+                    'validation' => $this->validator->getErrors()
+                ]);
+            }
+            return redirect()->back()->withInput()->with('validation', $this->validator->getErrors());
         }
 
-        $data = $this->request->getPost();
-
-        $user = new Users();
-        $user = $user->insert([
-            'username' => $data['username'],
+        $userModel = new Users();
+        $userId = $userModel->insert([
+            'username'  => $data['username'],
             'full_name' => $data['full_name'],
-            'email' => $data['email'],
-            'password ' => password_hash($data['password'], PASSWORD_DEFAULT),
-            'role' => 'student'
+            'email'     => $data['email'],
+            'password'  => password_hash($data['password'], PASSWORD_DEFAULT),
+            'role'      => 'student'
         ]);
 
-        $userUpdate = new Users();
-        $userUpdate = $userUpdate->update($user, [
-            'password' => password_hash($data['password'], PASSWORD_DEFAULT),
-        ]);
-
-        $students = new Students();
-        $students->insert([
-            'user_id' => $user,
-            'nim' => $data['nim'],
+        $studentModel = new Students();
+        $studentModel->insert([
+            'user_id'       => $userId,
+            'nim'           => $data['nim'],
             'tanggal_lahir' => $data['tanggal_lahir'],
-            'entry_year' => date_parse($data['entry_year'])['year'],
+            'entry_year'    => date_parse($data['entry_year'])['year'],
         ]);
+
+        if ($this->request->isAJAX()) {
+            return response()->setJSON([
+                'success'     => true,
+                'message'     => 'Student created!',
+                'redirect_to' => base_url('student')
+            ]);
+        }
 
         return redirect()->to('/student')->with('success', 'Data berhasil disimpan.');
     }
@@ -107,45 +123,63 @@ class StudentController extends BaseController
 
     public function update($id)
     {
-        $student = new Students();
-        $student = $student->find($id);
+        
+        $studentModel = new Students();
+        $student      = $studentModel->find($id);
 
         if (!$student) {
-            return redirect()->back()->with('error', 'Student is not fount');
+            if ($this->request->isAJAX()) {
+                return response()->setJSON(['success' => false, 'error' => 'Student not found']);
+            }
+            return redirect()->back()->with('error', 'Student not found');
         }
 
+        $data = $this->request->isAJAX()
+            ? json_decode($this->request->getBody(), true)
+            : $this->request->getPost();
+
         $rules = [
-            'nim' => "required|is_unique[students.nim,nim,$id]|numeric|min_length[9]|max_length[9]",
+            'nim'       => "required|is_unique[students.nim,nim,{$student['nim']}]|numeric|min_length[9]|max_length[9]",
             'full_name' => 'required|min_length[3]|max_length[255]',
-            'username' => "required|is_unique[users.username,id,{$student['user_id']}]",
-            'email' => "required|valid_email|is_unique[users.email,id,{$student['user_id']}]",
+            'username'  => "required|is_unique[users.username,id,{$student['user_id']}]",
+            'email'     => "required|valid_email|is_unique[users.email,id,{$student['user_id']}]",
         ];
 
-
-        if (!$this->validate($rules)) {
+        if (!$this->validateData($data, $rules)) {
+            if ($this->request->isAJAX()) {
+                return response()->setJSON([
+                    'success'    => false,
+                    'validation' => $this->validator->getErrors()
+                ]);
+            }
             return redirect()->back()->withInput()->with('validation', $this->validator->getErrors());
         }
 
-        $data = $this->request->getPost();
-
-        $user = new Users();
-        $user = $user->update($student['user_id'], [
-            'username' => $data['username'],
+        $userModel = new Users();
+        $userModel->update($student['user_id'], [
+            'username'  => $data['username'],
             'full_name' => $data['full_name'],
-            'email' => $data['email'],
-            'role' => 'student'
+            'email'     => $data['email'],
+            'role'      => 'student'
         ]);
 
-        $students = new Students();
-        $students->update($id, [
-            'user_id' => $user,
-            'nim' => $data['nim'],
+        $studentModel->update($id, [
+            'nim'           => $data['nim'],
             'tanggal_lahir' => $data['tanggal_lahir'],
-            'entry_year' => date_parse($data['entry_year'])['year'],
+            'entry_year'    => date_parse($data['entry_year'])['year'],
         ]);
+
+        if ($this->request->isAJAX()) {
+            return response()->setJSON([
+                'success'     => true,
+                'message'     => 'Student updated!',
+                'redirect_to' => base_url('student')
+            ]);
+        }
 
         return redirect()->to('/student')->with('success', 'Data berhasil diupdate!');
     }
+
 
 
     public function edit_password($id)
@@ -194,19 +228,28 @@ class StudentController extends BaseController
 
     public function destroy($id)
     {
-        $students = new Students();
-        $data =  $students->find($id);
+        $studentModel = new Students();
+        $student      = $studentModel->find($id);
 
-
-        
-        if (!$data) {
+        if (!$student) {
+            if ($this->request->isAJAX()) {
+                return response()->setJSON(['success' => false, 'error' => 'Student not found']);
+            }
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Student with ID $id not found");
         }
 
-        $user = new Users();
-        $user->delete($data['id']);
-        
-        $students->delete($id);
+        $userModel = new Users();
+        $userModel->delete($student['user_id']);
+        $studentModel->delete($id);
+
+        if ($this->request->isAJAX()) {
+            return response()->setJSON([
+                'success'    => true,
+                'message'    => 'Student deleted!',
+                'closeModal' => true
+            ]);
+        }
+
         return redirect()->to('/student')->with('success', 'Data students berhasil dihapus!');
     }
 }

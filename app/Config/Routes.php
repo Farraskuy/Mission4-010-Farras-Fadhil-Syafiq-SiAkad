@@ -34,11 +34,13 @@ $routes->group('', ['filter' => 'auth:login'], function () use ($routes) {
         $routes->delete("delete/(:num)", "StudentController::destroy/$1");
     });
 
-    $routes->get("/course", "CourseController::index");
-    $routes->post("/course/enroll/(:num)", "CourseController::enroll/$1");
-    $routes->post("/course/unenroll/(:num)", "CourseController::unenroll/$1");
+    $routes->get('/course/student', 'CourseController::student', ['filter' => 'auth:student']);
+    $routes->post('/course/enroll', 'CourseController::enroll', ['filter' => 'auth:student']);
+    $routes->post('/course/unenroll', 'CourseController::unenroll', ['filter' => 'auth:student']);
+
 
     $routes->group('/course', ['filter' => 'auth:admin'], function () use ($routes) {
+        $routes->get("/", "CourseController::index");
         $routes->get("tambah", "CourseController::tambah");
         $routes->post("tambah", "CourseController::store");
         $routes->get("detail/(:num)", "CourseController::detail/$1");

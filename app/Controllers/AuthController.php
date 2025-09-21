@@ -60,7 +60,7 @@ class AuthController extends BaseController
 
         // Jika validasi gagal (AJAX)
         if (!$validation && $this->request->isAJAX()) {
-            return response()->setJSON($this->validator->getErrors());
+            return response()->setJSON(['validation' => $this->validator->getErrors()]);
         }
 
         // Cari user berdasarkan username/email
@@ -94,6 +94,7 @@ class AuthController extends BaseController
         if ($this->request->isAJAX()) {
             return response()->setJSON([
                 'success' => true,
+                'message' => 'Successfully Login',
                 'redirect_to' => base_url()
             ]);
         }
@@ -113,10 +114,11 @@ class AuthController extends BaseController
     public function logout()
     {
         session()->remove('users');
-        
+
         if ($this->request->isAJAX()) {
             return response()->setJSON([
                 'success' => true,
+                'message' => 'Succesfully logout',
                 'redirect_to' => base_url()
             ]);
         }
