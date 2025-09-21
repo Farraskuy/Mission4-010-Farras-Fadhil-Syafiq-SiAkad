@@ -1,54 +1,65 @@
-# SiAkad - Sistem Akademik
+# SiAkad - Sistem Informasi Akademik
 
-Sebuah sistem informasi akademik sederhana yang dibangun menggunakan CodeIgniter 4.
+SiAkad adalah sistem informasi akademik sederhana yang dibangun untuk mengelola data mahasiswa dan mata kuliah. Aplikasi ini memungkinkan admin untuk melakukan operasi CRUD (Create, Read, Update, Delete) pada data mahasiswa dan mata kuliah. Mahasiswa dapat melihat daftar mata kuliah yang tersedia dan mengambil atau membatalkan mata kuliah.
 
-## 🚀 Langkah Menjalankan Aplikasi
+---
 
-Untuk menjalankan proyek ini di lingkungan lokal Anda, ikuti langkah-langkah berikut:
+## ✨ Fitur
 
-1.  **Clone Repositori**
-    Pastikan Anda sudah mengunduh semua file proyek ke dalam direktori lokal Anda.
+* **Manajemen Mahasiswa**: Admin dapat menambah, melihat, mengubah, dan menghapus data mahasiswa.
+* **Manajemen Mata Kuliah**: Admin dapat menambah, melihat, mengubah, dan menghapus data mata kuliah.
+* **Pengambilan Mata Kuliah**: Mahasiswa dapat mendaftar dan membatalkan pendaftaran pada mata kuliah yang tersedia.
+* **Pencarian**: Memudahkan pencarian data mahasiswa dan mata kuliah.
 
-2.  **Instalasi Dependensi**
-    Buka terminal atau command prompt, arahkan ke direktori root proyek Anda, dan jalankan perintah berikut untuk menginstal semua dependensi yang diperlukan:
-    ```bash
-    composer install
-    ```
+---
 
-3.  **Konfigurasi Database**
-    - Salin file `env` menjadi `.env`.
-    - Buka file `.env` dan sesuaikan pengaturan database berikut dengan konfigurasi lokal Anda:
-      ```
-      database.default.hostname = localhost
-      database.default.database = nama_database_anda
-      database.default.username = user_database_anda
-      database.default.password = password_database_anda
-      database.default.DBDriver = MySQLi
-      ```
+## 💻 Teknologi yang Digunakan
 
-4.  **Migrasi dan Seeding Database**
-    Jalankan perintah berikut untuk membuat semua tabel yang diperlukan dan mengisi data awal (termasuk akun pengguna untuk pengujian):
-    ```bash
-    php spark migrate
-    php spark db:seed UserSeeder
-    php spark db:seed StudentSeeder
-    ```
+* **PHP 8.1**
+* **CodeIgniter 4**
+* **MySQL**
+* **Bootstrap**
 
-5.  **Jalankan Aplikasi**
-    Terakhir, jalankan server pengembangan bawaan CodeIgniter dengan perintah:
-    ```bash
-    php spark serve
-    ```
-    Aplikasi sekarang akan dapat diakses melalui `http://localhost:8080`.
+---
 
-## Credentials untuk Pengujian
+## 📸 Screenshot
 
-Anda dapat menggunakan akun berikut untuk masuk ke dalam sistem dan melakukan pengujian:
+### Fitur General
 
-### Akun Admin
--   **Username**: `admin`
--   **Password**: `admin`
 
-### Akun Mahasiswa (Student)
--   **Username**: `farras`
--   **Password**: `farras`
+### Admin
+
+![Tampilan Admin](URL_ADMIN_SCREENSHOT)
+*Tampilan Dashboard Admin*
+
+Fitur yang dapat diakses oleh Admin:
+- **Manajemen Mahasiswa**:
+    - Melihat semua data mahasiswa.
+    - Menambahkan data mahasiswa baru.
+    - Mengubah data mahasiswa.
+    - Menghapus data mahasiswa.
+    - Mengubah password mahasiswa.
+- **Manajemen Mata Kuliah**:
+    - Melihat semua data mata kuliah.
+    - Menambahkan data mata kuliah baru.
+    - Mengubah data mata kuliah.
+    - Menghapus data mata kuliah.
+
+### Student
+
+![Tampilan Student](URL_STUDENT_SCREENSHOT)
+*Tampilan Dashboard Mahasiswa*
+
+Fitur yang dapat diakses oleh Mahasiswa:
+- **Manajemen Mata Kuliah**:
+    - Melihat daftar mata kuliah yang tersedia.
+  
+    - Mengambil mata kuliah (enroll).
+    - Membatalkan pengambilan mata kuliah (un-enroll).
+    - Melihat daftar mata kuliah yang sudah diambil.
+
+---
+
+## 🧑‍💻 Kontributor
+
+* Farras Fadhil Syafiq
