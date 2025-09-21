@@ -25,7 +25,8 @@ SiAkad adalah sistem informasi akademik sederhana yang dibangun untuk mengelola 
 ## 📸 Screenshot
 
 ### Fitur General
-
+- Login
+![Tampilan Login](https://github.com/user-attachments/assets/98b57aec-6de5-49b3-a76c-b195ac9f7daa)
 
 ### Admin
 
